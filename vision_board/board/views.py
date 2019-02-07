@@ -1,8 +1,14 @@
-from django.shortcuts import render
-from .models import Note
-from .forms import NoteForm
+from django.shortcuts import render, get_object_or_404
+
 from django.http import HttpResponseRedirect
 
+from rest_framework.views import APIView
+from rest_framework.response import Response 
+from rest_framework import status
+
+from .models import Note
+from .forms import NoteForm
+from .serializers import NoteSerializer
 
 def home(request):
     all_notes = Note.objects.all()
@@ -32,3 +38,11 @@ def delete_note(request, note_id):
 	note = Note.objects.get(pk=note_id)
 	note.delete()
 	return HttpResponseRedirect('/')
+
+
+
+class NotesList(APIView):
+    def get(self, request):
+        notes = Note.objects.all()
+        serializer = NoteSerializer(notes, many = True)
+        return Response(serializer.data)
